@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtils jwtUtils;
 
     private final AuthenticationManager authenticationManager;
+
+    private final Set<String> invalidatedTokens = new HashSet<>();
 
     @Transactional
     public RegisterCustomerResponse register(RegisterCustomerRequest customerRequest) throws EmailAlreadyExistsException{
@@ -80,6 +84,15 @@ public class AuthServiceImpl implements AuthService {
                 .tokenType("Bearer")
                 .build();
 
+    }
+
+    @Override
+    public void logout(String token){
+        invalidatedTokens.add(token);
+    }
+
+    public boolean isTokenInvalid(String token){
+        return invalidatedTokens.contains(token);
     }
 
 }

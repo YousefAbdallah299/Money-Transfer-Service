@@ -26,11 +26,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private CustomerDetailsServiceImpl customerDetailsService;
 
+    @Autowired
+    private AuthServiceImpl authService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+            if (jwt != null && jwtUtils.validateJwtToken(jwt) && !authService.isTokenInvalid(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = customerDetailsService.loadUserByUsername(username);

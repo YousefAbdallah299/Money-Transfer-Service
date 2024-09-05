@@ -29,4 +29,12 @@ public interface AuthService {
 
     LoginResponseDTO login(LoginRequestDTO loginRequestDTO);
 
+
+    /**
+     * Logout a customer
+     *
+     * @param token the token of the user
+     */
+    void logout(String token);
+
 }
