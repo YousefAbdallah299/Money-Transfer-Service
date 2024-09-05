@@ -44,6 +44,10 @@ public class Customer {
     @Builder.Default
     private Set<Account> accounts = new HashSet<>();
 
+
+
+
+
     public RegisterCustomerResponse toResponse() {
         return RegisterCustomerResponse.builder()
                 .id(this.id)

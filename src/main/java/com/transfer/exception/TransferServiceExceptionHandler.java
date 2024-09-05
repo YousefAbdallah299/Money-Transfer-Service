@@ -2,6 +2,7 @@ package com.transfer.exception;
 
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
+import com.transfer.exception.custom.InsufficientFundsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.exception.response.ErrorDetails;
 import com.transfer.exception.response.ValidationFailedResponse;
@@ -34,6 +35,10 @@ public class TransferServiceExceptionHandler {
         return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(), exception.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<Object> InsufficientFundsExceptionHandling(InsufficientFundsException exception, WebRequest request){
+        return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(), exception.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
+    }
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

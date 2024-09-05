@@ -13,6 +13,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Data
@@ -57,6 +59,10 @@ public class Account {
     @ManyToOne(fetch = FetchType.EAGER)
     private Customer customer;
 
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Builder.Default
+    private Set<Transaction> transactions = new HashSet<>();
 
     public ReturnAccountDTO toDTO() {
         return ReturnAccountDTO.builder()

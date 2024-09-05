@@ -2,9 +2,13 @@ package com.transfer.service;
 
 import com.transfer.dto.CreateAccountDTO;
 import com.transfer.dto.ReturnAccountDTO;
+import com.transfer.dto.ReturnTransactionDTO;
 import com.transfer.dto.UpdateAccountDTO;
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
+import com.transfer.exception.custom.InsufficientFundsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
+
+import java.util.Set;
 
 public interface AccountService {
 
@@ -33,6 +37,15 @@ public interface AccountService {
     void deleteAccount(Long accountId)throws ResourceNotFoundException;
 
     void deposit(Long accountId, Double amount)throws ResourceNotFoundException;
+
+    void withdraw(Long accountId, Double amount)throws ResourceNotFoundException, InsufficientFundsException;
+
+
+    Double getBalance(Long accountID)throws ResourceNotFoundException;
+
+    Set<ReturnTransactionDTO> getTransactions(Long accountID) throws ResourceNotFoundException;
+
+
 
 
 }

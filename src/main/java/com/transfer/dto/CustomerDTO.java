@@ -24,4 +24,7 @@ public class CustomerDTO {
     private LocalDateTime updatedAt;
 
     private Set<ReturnAccountDTO> accounts;
+
+    private Set<ReturnTransactionDTO> transactions;
+
 }

@@ -3,10 +3,13 @@ package com.transfer.service;
 
 import com.transfer.dto.CreateAccountDTO;
 import com.transfer.dto.ReturnAccountDTO;
+import com.transfer.dto.ReturnTransactionDTO;
 import com.transfer.dto.UpdateAccountDTO;
 import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
+import com.transfer.entity.Transaction;
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
+import com.transfer.exception.custom.InsufficientFundsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.repository.AccountRepository;
 import com.transfer.repository.CustomerRepository;
@@ -15,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,6 +87,35 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(account.getBalance()+amount);
         accountRepository.save(account);
     }
+
+    @Override
+    public void withdraw(Long accountId, Double amount) throws ResourceNotFoundException,InsufficientFundsException{
+        Account account = checkAccountExistance(accountId);
+        if(Boolean.TRUE.equals(account.getBalance()>=amount)){
+            account.setBalance(account.getBalance()-amount);
+        }
+        else{
+            throw new InsufficientFundsException("Account doesn't have enough money");
+        }
+        accountRepository.save(account);
+    }
+
+
+
+    @Override
+    public Double getBalance(Long accoundID) throws ResourceNotFoundException{
+        Account account = checkAccountExistance(accoundID);
+        return account.getBalance();
+    }
+
+    @Override
+    public Set<ReturnTransactionDTO> getTransactions(Long accountID) throws ResourceNotFoundException {
+        Account account = checkAccountExistance(accountID);
+        return account.getTransactions().stream()
+                .map(Transaction::toDTO)
+                .collect(Collectors.toSet());
+    }
+
 
     private Account checkAccountExistance(Long id) throws ResourceNotFoundException{
         return this.accountRepository.findById(id).orElseThrow(
