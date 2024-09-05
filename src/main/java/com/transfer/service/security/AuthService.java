@@ -6,7 +6,6 @@ import com.transfer.dto.RegisterCustomerRequest;
 import com.transfer.dto.RegisterCustomerResponse;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
 
-import java.util.List;
 
 public interface AuthService {
 
