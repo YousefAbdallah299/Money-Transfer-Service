@@ -7,6 +7,7 @@ import com.transfer.dto.UpdateAccountDTO;
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
 import com.transfer.exception.custom.InsufficientFundsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
+import com.transfer.exception.custom.UnauthorizedAccessException;
 
 import java.util.Set;
 
@@ -20,7 +21,7 @@ public interface AccountService {
      * @return the created account
      * @throws ResourceNotFoundException if the account is not found
      */
-    ReturnAccountDTO createAccount(CreateAccountDTO createAccountDTO) throws ResourceNotFoundException, AccountCurrencyAlreadyExistsException;
+    ReturnAccountDTO createAccount(CreateAccountDTO createAccountDTO,String loggedInUserEmail) throws ResourceNotFoundException, AccountCurrencyAlreadyExistsException;
 
 
     /**
@@ -30,20 +31,20 @@ public interface AccountService {
      * @return the account
      * @throws ResourceNotFoundException if the account is not found
      */
-    ReturnAccountDTO getAccountById(Long accountId) throws ResourceNotFoundException;
+    ReturnAccountDTO getAccountById(Long accountId, String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException;
 
-    ReturnAccountDTO updateAccount(UpdateAccountDTO accountDTO)throws ResourceNotFoundException;
+    ReturnAccountDTO updateAccount(UpdateAccountDTO accountDTO, String loggedInUserEmail)throws ResourceNotFoundException,UnauthorizedAccessException;
 
-    void deleteAccount(Long accountId)throws ResourceNotFoundException;
+    void deleteAccount(Long accountId, String loggedInUserEmail)throws ResourceNotFoundException, UnauthorizedAccessException;
 
-    void deposit(Long accountId, Double amount)throws ResourceNotFoundException;
+    void deposit(Long accountId, Double amount,String loggedInUserEmail)throws ResourceNotFoundException,UnauthorizedAccessException;
 
-    void withdraw(Long accountId, Double amount)throws ResourceNotFoundException, InsufficientFundsException;
+    void withdraw(Long accountId, Double amount,String loggedInUserEmail)throws ResourceNotFoundException, InsufficientFundsException,UnauthorizedAccessException;
 
 
-    Double getBalance(Long accountID)throws ResourceNotFoundException;
+    Double getBalance(Long accountID,String loggedInUserEmail)throws ResourceNotFoundException,UnauthorizedAccessException;
 
-    Set<ReturnTransactionDTO> getTransactions(Long accountID) throws ResourceNotFoundException;
+    Set<ReturnTransactionDTO> getTransactions(Long accountID,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException;
 
 
 

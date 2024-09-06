@@ -27,4 +27,7 @@ public class CustomerDTO {
 
     private Set<ReturnTransactionDTO> transactions;
 
+    private Set<ReturnFavoritesDTO> favorites;
+
+
 }

@@ -11,6 +11,7 @@ import com.transfer.entity.Transaction;
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
 import com.transfer.exception.custom.InsufficientFundsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
+import com.transfer.exception.custom.UnauthorizedAccessException;
 import com.transfer.repository.AccountRepository;
 import com.transfer.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
@@ -31,10 +32,12 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public ReturnAccountDTO createAccount(CreateAccountDTO createAccountDTO) throws ResourceNotFoundException,AccountCurrencyAlreadyExistsException{
-        Customer customer = this.customerRepository.findById(createAccountDTO.getCustomerId()).orElseThrow(
+    public ReturnAccountDTO createAccount(CreateAccountDTO createAccountDTO,String loggedInUserEmail) throws ResourceNotFoundException,AccountCurrencyAlreadyExistsException{
+        Customer customer = this.customerRepository.findUserByEmail(loggedInUserEmail).orElseThrow(
                 () -> new ResourceNotFoundException("Customer Not Found!")
         );
+
+
 
         if(Boolean.TRUE.equals(customer.getAccounts().stream().anyMatch(account -> account.getCurrency().equals(createAccountDTO.getCurrency()))))
             throw new AccountCurrencyAlreadyExistsException("This Customer Already Has An Account With This Currency!");
@@ -55,13 +58,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ReturnAccountDTO getAccountById(Long accountId) throws ResourceNotFoundException{
-        return checkAccountExistance(accountId).toDTO();
+    public ReturnAccountDTO getAccountById(Long accountId,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException{
+
+        Account account = checkAccountExistance(accountId);
+        if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
+            throw new UnauthorizedAccessException("You do not have permission to access this account");
+        }
+
+        return account.toDTO();
     }
 
     @Override
-    public ReturnAccountDTO updateAccount(UpdateAccountDTO accountDTO) throws ResourceNotFoundException {
+    public ReturnAccountDTO updateAccount(UpdateAccountDTO accountDTO,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException  {
         Account account = checkAccountExistance(accountDTO.getAccountId());
+        if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
+            throw new UnauthorizedAccessException("You do not have permission to access this account");
+        }
         account.setAccountName(accountDTO.getAccountName());
         account.setAccountDescription(accountDTO.getAccountDescription());
         account.setAccountNumber(account.getAccountNumber());
@@ -71,8 +83,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void deleteAccount(Long accountId) throws ResourceNotFoundException {
+    public void deleteAccount(Long accountId,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
         Account account = checkAccountExistance(accountId);
+        if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
+            throw new UnauthorizedAccessException("You do not have permission to access this account");
+        }
 
         Customer customer = account.getCustomer();
         customer.getAccounts().remove(account);
@@ -82,15 +97,21 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void deposit(Long accountId, Double amount) throws ResourceNotFoundException{
+    public void deposit(Long accountId, Double amount,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException{
         Account account = checkAccountExistance(accountId);
+        if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
+            throw new UnauthorizedAccessException("You do not have permission to access this account");
+        }
         account.setBalance(account.getBalance()+amount);
         accountRepository.save(account);
     }
 
     @Override
-    public void withdraw(Long accountId, Double amount) throws ResourceNotFoundException,InsufficientFundsException{
+    public void withdraw(Long accountId, Double amount,String loggedInUserEmail) throws ResourceNotFoundException,InsufficientFundsException,UnauthorizedAccessException{
         Account account = checkAccountExistance(accountId);
+        if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
+            throw new UnauthorizedAccessException("You do not have permission to access this account");
+        }
         if(Boolean.TRUE.equals(account.getBalance()>=amount)){
             account.setBalance(account.getBalance()-amount);
         }
@@ -103,14 +124,20 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Double getBalance(Long accoundID) throws ResourceNotFoundException{
+    public Double getBalance(Long accoundID,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException{
         Account account = checkAccountExistance(accoundID);
+        if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
+            throw new UnauthorizedAccessException("You do not have permission to access this account");
+        }
         return account.getBalance();
     }
 
     @Override
-    public Set<ReturnTransactionDTO> getTransactions(Long accountID) throws ResourceNotFoundException {
+    public Set<ReturnTransactionDTO> getTransactions(Long accountID,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
         Account account = checkAccountExistance(accountID);
+        if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
+            throw new UnauthorizedAccessException("You do not have permission to access this account");
+        }
         return account.getTransactions().stream()
                 .map(Transaction::toDTO)
                 .collect(Collectors.toSet());

@@ -45,6 +45,11 @@ public class Customer {
     private Set<Account> accounts = new HashSet<>();
 
 
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    private Set<FavRecipient> favoriteRecipients = new HashSet<>();
+
+
 
 
 
@@ -67,6 +72,7 @@ public class Customer {
                 .updatedAt(this.updatedAt)
                 .accounts(this.accounts.stream().map(Account::toDTO)
                         .collect(Collectors.toSet()))
+                .favorites(this.favoriteRecipients.stream().map(FavRecipient::toDTO).collect(Collectors.toSet()))
                 .build();
     }
 }
