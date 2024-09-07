@@ -1,4 +1,4 @@
-package com.transfer.dto;
+package com.transfer.dto.response;
 
 import jakarta.persistence.Column;
 import lombok.*;
@@ -8,7 +8,9 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class AddFavoritesDTO {
+public class FavoritesResponseDTO {
+    private String recipientName;
+
     @Column(nullable = false)
     private Long recipientAccountId;
 }

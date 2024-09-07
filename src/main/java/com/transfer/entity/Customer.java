@@ -1,7 +1,6 @@
 package com.transfer.entity;
 
-import com.transfer.dto.CustomerDTO;
-import com.transfer.dto.RegisterCustomerResponse;
+import com.transfer.dto.response.RegisterCustomerResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,7 +9,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Entity
@@ -53,8 +51,8 @@ public class Customer {
 
 
 
-    public RegisterCustomerResponse toResponse() {
-        return RegisterCustomerResponse.builder()
+    public RegisterCustomerResponseDTO toResponse() {
+        return RegisterCustomerResponseDTO.builder()
                 .id(this.id)
                 .name(this.name)
                 .email(this.email)
@@ -63,16 +61,4 @@ public class Customer {
                 .build();
     }
 
-    public CustomerDTO toDTO() {
-        return CustomerDTO.builder()
-                .id(this.id)
-                .name(this.name)
-                .email(this.email)
-                .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
-                .accounts(this.accounts.stream().map(Account::toDTO)
-                        .collect(Collectors.toSet()))
-                .favorites(this.favoriteRecipients.stream().map(FavRecipient::toDTO).collect(Collectors.toSet()))
-                .build();
-    }
 }

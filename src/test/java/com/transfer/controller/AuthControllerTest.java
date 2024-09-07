@@ -1,6 +1,6 @@
 package com.transfer.controller;
 
-import com.transfer.dto.RegisterCustomerRequest;
+import com.transfer.dto.request.RegisterCustomerRequestDTO;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
 import com.transfer.service.security.AuthService;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ class AuthControllerTest {
     @Test
     void testRegisterWithAlreadyExistingUser() throws Exception {
 
-        Mockito.when(this.authenticator.register(any(RegisterCustomerRequest.class)))
+        Mockito.when(this.authenticator.register(any(RegisterCustomerRequestDTO.class)))
                 .thenThrow(new EmailAlreadyExistsException("User already exists"));
 
         mockMvc.perform(post("/api/v1/auth/register")

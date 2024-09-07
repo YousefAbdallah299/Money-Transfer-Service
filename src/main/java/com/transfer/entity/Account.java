@@ -1,7 +1,7 @@
 package com.transfer.entity;
 
 
-import com.transfer.dto.ReturnAccountDTO;
+import com.transfer.dto.response.AccountResponseDTO;
 import com.transfer.dto.enums.AccountCurrency;
 import com.transfer.dto.enums.AccountType;
 import jakarta.persistence.*;
@@ -64,8 +64,8 @@ public class Account {
     @Builder.Default
     private Set<Transaction> transactions = new HashSet<>();
 
-    public ReturnAccountDTO toDTO() {
-        return ReturnAccountDTO.builder()
+    public AccountResponseDTO toDTO() {
+        return AccountResponseDTO.builder()
                 .id(this.id)
                 .accountNumber(this.accountNumber)
                 .accountType(this.accountType)

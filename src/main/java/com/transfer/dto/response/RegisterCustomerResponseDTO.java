@@ -1,17 +1,15 @@
-package com.transfer.dto;
-
+package com.transfer.dto.response;
 
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Setter
 @Getter
-public class CustomerDTO {
+public class RegisterCustomerResponseDTO {
 
     private Long id;
 
@@ -22,12 +20,4 @@ public class CustomerDTO {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
-    private Set<ReturnAccountDTO> accounts;
-
-    private Set<ReturnTransactionDTO> transactions;
-
-    private Set<ReturnFavoritesDTO> favorites;
-
-
 }

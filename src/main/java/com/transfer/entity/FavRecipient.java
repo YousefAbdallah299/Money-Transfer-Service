@@ -1,6 +1,6 @@
 package com.transfer.entity;
 
-import com.transfer.dto.ReturnFavoritesDTO;
+import com.transfer.dto.response.FavoritesResponseDTO;
 import com.transfer.entity.key.FavRecipientId;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,8 +27,8 @@ public class FavRecipient {
 
 
 
-    public ReturnFavoritesDTO toDTO(){
-        return ReturnFavoritesDTO.builder()
+    public FavoritesResponseDTO toDTO(){
+        return FavoritesResponseDTO.builder()
                 .recipientAccountId(this.id.getRecipientAccountID())
                 .recipientName(this.recipientName)
                 .build();

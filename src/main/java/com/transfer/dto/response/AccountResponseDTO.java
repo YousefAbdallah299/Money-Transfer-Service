@@ -1,4 +1,4 @@
-package com.transfer.dto;
+package com.transfer.dto.response;
 
 
 import com.transfer.dto.enums.AccountCurrency;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
-public class ReturnAccountDTO {
+public class AccountResponseDTO {
 
 
     private Long id;

@@ -1,4 +1,4 @@
-package com.transfer.dto;
+package com.transfer.dto.request;
 
 import com.transfer.dto.enums.AccountCurrency;
 import com.transfer.dto.enums.AccountType;
@@ -14,7 +14,7 @@ import lombok.*;
 @Getter
 @Setter
 
-public class CreateAccountDTO {
+public class CreateAccountRequestDTO {
     @Enumerated(EnumType.STRING)
 
     private AccountType accountType;

@@ -1,43 +1,54 @@
 package com.transfer.service;
 
-import com.transfer.dto.AddFavoritesDTO;
-import com.transfer.dto.CustomerDTO;
-import com.transfer.dto.ReturnFavoritesDTO;
-import com.transfer.exception.custom.InsufficientFundsException;
+import com.transfer.dto.request.FavoritesRequestDTO;
+import com.transfer.dto.response.AccountResponseDTO;
+import com.transfer.dto.response.FavoritesResponseDTO;
 import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.exception.custom.UnauthorizedAccessException;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
 import java.util.Set;
 
 public interface CustomerService {
+    /**
+     * Get the list of accounts for a customer
+     *
+     * @param loggedInUserEmail the email of the logged-in user
+     * @return a list of accounts of the user
+     * @throws UnauthorizedAccessException if the logged-in user is not authorized to access this data
+     * @throws ResourceNotFoundException if the logged-in customer can't be found
+     */
+
+   List<AccountResponseDTO> getAccounts(String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException;
+    /**
+     * Get the list of favorite recipients for a customer
+     *
+     * @param loggedInUserEmail the email of the logged-in user
+     * @return a set of favorite recipients
+     * @throws UnauthorizedAccessException if the logged-in user is not authorized to access this data
+     * @throws ResourceNotFoundException if the logged-in customer can't be found
+     */
+    Set<FavoritesResponseDTO> getFavorites(String loggedInUserEmail) throws UnauthorizedAccessException,ResourceNotFoundException;
 
     /**
-     * Get customer by id
+     * Add a recipient to the favorites list
      *
-     * @param customerId the customer id
-     * @return the created customer
-     * @throws ResourceNotFoundException if the customer is not found
+     * @param favoritesRequestDTO the details of the recipient to be added to favorites
+     * @param loggedInUserEmail the email of the logged-in user
+     * @throws ResourceNotFoundException if the recipient or customer is not found
+     * @throws UnauthorizedAccessException if the logged-in user is not authorized to perform this action
      */
-    CustomerDTO getCustomerById(Long customerId) throws ResourceNotFoundException;
-
+    void addFavorite(@RequestBody @Valid FavoritesRequestDTO favoritesRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
 
     /**
-     * transfer money from an account to another
+     * Remove a recipient from the favorites list
      *
-     * @param senderID for the sender id
-     * @param recieverID for the receiver id
-     * @param amount for the amount to be transferred
-     * @throws ResourceNotFoundException if the reciever or sender are not found
-     * @throws InsufficientFundsException if the sender doesn't have enough money
+     * @param favoritesRequestDTO the details of the recipient to be removed from favorites
+     * @param loggedInUserEmail the email of the logged-in user
+     * @throws ResourceNotFoundException if the recipient or customer is not found
+     * @throws UnauthorizedAccessException if the logged-in user is not authorized to perform this action
      */
-    void transfer(Long senderID, Long recieverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException,UnauthorizedAccessException;
-
-    Set<ReturnFavoritesDTO> getFavorites(String loggedInUserEmail)throws UnauthorizedAccessException;
-
-    void addFavorite(@RequestBody @Valid AddFavoritesDTO addFavoritesDTO,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException;
-
-    void deleteFavorite(@RequestBody @Valid AddFavoritesDTO addFavoritesDTO,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException;
-
+    void deleteFavorite(@RequestBody @Valid FavoritesRequestDTO favoritesRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
 }

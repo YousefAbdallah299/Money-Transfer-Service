@@ -1,4 +1,4 @@
-package com.transfer.dto;
+package com.transfer.dto.request;
 
 
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class UpdateAccountDTO {
+public class UpdateAccountRequestDTO {
     @NotNull
     private Long accountId;
 

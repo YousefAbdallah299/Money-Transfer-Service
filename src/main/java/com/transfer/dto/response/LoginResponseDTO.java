@@ -1,4 +1,4 @@
-package com.transfer.dto;
+package com.transfer.dto.response;
 
 
 import lombok.*;

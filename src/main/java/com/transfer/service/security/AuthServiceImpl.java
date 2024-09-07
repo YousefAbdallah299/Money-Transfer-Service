@@ -1,9 +1,9 @@
 package com.transfer.service.security;
 
-import com.transfer.dto.LoginRequestDTO;
-import com.transfer.dto.LoginResponseDTO;
-import com.transfer.dto.RegisterCustomerRequest;
-import com.transfer.dto.RegisterCustomerResponse;
+import com.transfer.dto.request.LoginRequestDTO;
+import com.transfer.dto.response.LoginResponseDTO;
+import com.transfer.dto.request.RegisterCustomerRequestDTO;
+import com.transfer.dto.response.RegisterCustomerResponseDTO;
 import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
@@ -37,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final Set<String> invalidatedTokens = new HashSet<>();
 
     @Transactional
-    public RegisterCustomerResponse register(RegisterCustomerRequest customerRequest) throws EmailAlreadyExistsException{
+    public RegisterCustomerResponseDTO register(RegisterCustomerRequestDTO customerRequest) throws EmailAlreadyExistsException{
 
         if(Boolean.TRUE.equals(customerRepository.existsByEmail(customerRequest.getEmail())))
             throw new EmailAlreadyExistsException("Email Already Exists!");

@@ -1,9 +1,9 @@
 package com.transfer.service.security;
 
-import com.transfer.dto.LoginRequestDTO;
-import com.transfer.dto.LoginResponseDTO;
-import com.transfer.dto.RegisterCustomerRequest;
-import com.transfer.dto.RegisterCustomerResponse;
+import com.transfer.dto.request.LoginRequestDTO;
+import com.transfer.dto.response.LoginResponseDTO;
+import com.transfer.dto.request.RegisterCustomerRequestDTO;
+import com.transfer.dto.response.RegisterCustomerResponseDTO;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
 
 
@@ -17,7 +17,7 @@ public interface AuthService {
      * @throws EmailAlreadyExistsException if the customer already exists
      */
 
-    RegisterCustomerResponse register(RegisterCustomerRequest customer) throws EmailAlreadyExistsException;
+    RegisterCustomerResponseDTO register(RegisterCustomerRequestDTO customer) throws EmailAlreadyExistsException;
 
 
     /**

@@ -1,6 +1,6 @@
 package com.transfer.entity;
 
-import com.transfer.dto.ReturnTransactionDTO;
+import com.transfer.dto.response.TransactionResponseDTO;
 import com.transfer.dto.enums.AccountCurrency;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,8 +38,8 @@ public class Transaction {
 
 
 
-    public ReturnTransactionDTO toDTO() {
-        return ReturnTransactionDTO.builder()
+    public TransactionResponseDTO toDTO() {
+        return TransactionResponseDTO.builder()
                 .amountTransferred(this.amountTransferred)
                 .recieverID(this.recieverID)
                 .id(this.id)

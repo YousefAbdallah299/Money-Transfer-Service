@@ -1,4 +1,4 @@
-package com.transfer.dto;
+package com.transfer.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
