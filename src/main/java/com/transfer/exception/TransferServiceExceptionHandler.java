@@ -7,6 +7,7 @@ import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.exception.response.ErrorDetails;
 import com.transfer.exception.response.ValidationFailedResponse;
 import com.transfer.exception.response.ViolationErrors;
+import io.jsonwebtoken.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -39,6 +40,12 @@ public class TransferServiceExceptionHandler {
     public ResponseEntity<Object> InsufficientFundsExceptionHandling(InsufficientFundsException exception, WebRequest request){
         return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(), exception.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
     }
+//IOException
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Object> InsufficientFundsExceptionHandling(IOException exception, WebRequest request){
+        return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(), exception.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
+    }
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -58,19 +65,8 @@ public class TransferServiceExceptionHandler {
                             .build()
             );
         }
-
-
-
-
-
-
         return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
     }
-
-
-
-
-
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> globalExceptionHandling(Exception exception, WebRequest request){

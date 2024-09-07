@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RestController
@@ -27,6 +28,9 @@ import java.util.Set;
 public class AccountController {
     private final AccountService accountService;
     private final JwtUtils jwtUtils;
+
+
+
 
     @PostMapping("/create")
     @Operation(summary = "Create a new account", description = "Creates a new account for the logged-in customer. The account must have a unique currency.")
@@ -81,7 +85,7 @@ public class AccountController {
             @PathVariable(value = "senderID") Long senderID,
             @PathVariable(value = "receiverAccountId") Long receiverID,
             @PathVariable(value = "amount") Double amount
-    ) throws ResourceNotFoundException {
+    ) throws ResourceNotFoundException, IOException {
         token = token.substring(7);
         String loggedInUserEmail = jwtUtils.getEmailFromJwtToken(token);
         accountService.transfer(senderID, receiverID, amount, loggedInUserEmail);

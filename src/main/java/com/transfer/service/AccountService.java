@@ -10,6 +10,7 @@ import com.transfer.exception.custom.UnauthorizedAccessException;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.IOException;
 import java.util.Set;
 
 public interface AccountService {
@@ -24,6 +25,8 @@ public interface AccountService {
      * @throws AccountCurrencyAlreadyExistsException if the user already has an account with the same currency
      */
     AccountResponseDTO createAccount(@RequestBody @Valid CreateAccountRequestDTO createAccountRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException, AccountCurrencyAlreadyExistsException;
+
+
 
     /**
      * Delete an account by id
@@ -81,6 +84,8 @@ public interface AccountService {
     Set<TransactionResponseDTO> getTransactions(Long accountId, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
 
 
+
+
     /**
      * Transfer money from one account to another
      *
@@ -92,6 +97,6 @@ public interface AccountService {
      * @throws InsufficientFundsException if the sender does not have enough money
      * @throws UnauthorizedAccessException if the logged-in user is not authorized to perform this transaction
      */
-    void transfer(Long senderID, Long receiverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, UnauthorizedAccessException;
+    void transfer(Long senderID, Long receiverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, UnauthorizedAccessException, IOException;
 
 }

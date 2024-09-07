@@ -1,6 +1,8 @@
 package com.transfer.service;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.transfer.dto.request.CreateAccountRequestDTO;
 import com.transfer.dto.response.AccountResponseDTO;
 import com.transfer.dto.response.TransactionResponseDTO;
@@ -16,8 +18,14 @@ import com.transfer.repository.CustomerRepository;
 import com.transfer.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -32,6 +40,9 @@ public class AccountServiceImpl implements AccountService {
     private final CustomerRepository customerRepository;
 
     private final TransactionRepository transactionRepository;
+
+    private static final String API_URL = "https://api.exchangerate-api.com/v4/latest/";
+
 
     @Override
     public AccountResponseDTO createAccount(CreateAccountRequestDTO createAccountRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException,AccountCurrencyAlreadyExistsException{
@@ -58,7 +69,6 @@ public class AccountServiceImpl implements AccountService {
 
         return account.toDTO();
     }
-
 
     @Override
     @Transactional
@@ -126,7 +136,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void transfer(Long senderID, Long receiverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException {
+    public void transfer(Long senderID, Long receiverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, IOException {
         Account sender = accountRepository.findById(senderID)
                 .orElseThrow(() -> new ResourceNotFoundException("Sender account not found"));
 
@@ -134,7 +144,8 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Receiver account not found"));
 
         this.withdraw(senderID,amount,loggedInUserEmail);
-        this.deposit(receiverID,amount,reciever.getCustomer().getEmail());
+
+        this.deposit(receiverID,convertCurrency(sender.getCurrency().toString(),reciever.getCurrency().toString(),amount),reciever.getCustomer().getEmail());
 
         Transaction transaction = Transaction.builder()
                 .account(sender)
@@ -148,9 +159,26 @@ public class AccountServiceImpl implements AccountService {
 
         transactionRepository.save(transaction);
 
-
-
     }
+
+
+
+    private double convertCurrency(String fromCurrency, String toCurrency, double amount) throws IOException {
+        String url = API_URL + fromCurrency;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(url);
+            HttpResponse response = httpClient.execute(request);
+            String jsonResponse = EntityUtils.toString(response.getEntity());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+            double exchangeRate = rootNode.path("rates").path(toCurrency).asDouble();
+
+            return amount * exchangeRate;
+        }
+    }
+
 
 
     private Account checkAccountExistance(Long id) throws ResourceNotFoundException{
