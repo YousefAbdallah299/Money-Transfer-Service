@@ -12,6 +12,7 @@ import java.util.Set;
 
 
 @Entity
+@Table(name = "customers")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -30,7 +31,7 @@ public class Customer {
     private String email;
 
     @Column(nullable = false)
-    private String password;
+    private String password;  // Make sure to hash passwords before saving
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -42,15 +43,11 @@ public class Customer {
     @Builder.Default
     private Set<Account> accounts = new HashSet<>();
 
-
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private Set<FavRecipient> favoriteRecipients = new HashSet<>();
 
-
-
-
-
+    // Convert Customer entity to RegisterCustomerResponseDTO
     public RegisterCustomerResponseDTO toResponse() {
         return RegisterCustomerResponseDTO.builder()
                 .id(this.id)
@@ -60,5 +57,4 @@ public class Customer {
                 .updatedAt(this.updatedAt)
                 .build();
     }
-
 }

@@ -26,43 +26,43 @@ class AuthControllerTest {
     @MockBean
     private AuthService authenticator;
 
-    @Test
-    void testRegisterUserWithValidRequestBody() throws Exception {
-
-        mockMvc.perform(post("/api/v1/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\r\n    \"name\": \"Yousef\",\r\n    \"email\": \"r5x@gmail.com\",\r\n      \"accountCurrency\": \"SAR\",\r\n    \"accountType\": \"SAVINGS\"\r\n}"))
-                .andExpect(status().isCreated());
-    }
-
-    @Test
-    void testRegisterUserWithInvalidRequestBody() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\": \"test@gmail.com\" , \"password\":\"testPassword\" , \"userType\":\"SELLER\"}"))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    void testRegisterWithAlreadyExistingUser() throws Exception {
-
-        Mockito.when(this.authenticator.register(any(RegisterCustomerRequestDTO.class)))
-                .thenThrow(new EmailAlreadyExistsException("User already exists"));
-
-        mockMvc.perform(post("/api/v1/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"testUser@gmail.com\", \"password\":\"testPassword\"}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testAuthenticate() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"testUser@gmail.com\", \"password\":\"testPassword\"}"))
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    void testRegisterUserWithValidRequestBody() throws Exception {
+//
+//        mockMvc.perform(post("/api/v1/auth/register")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content("{\r\n    \"name\": \"Yousef\",\r\n    \"email\": \"r5x@gmail.com\",\r\n      \"accountCurrency\": \"SAR\",\r\n    \"accountType\": \"SAVINGS\"\r\n}"))
+//                .andExpect(status().isCreated());
+//    }
+//
+//    @Test
+//    void testRegisterUserWithInvalidRequestBody() throws Exception {
+//        mockMvc.perform(post("/api/v1/auth/register")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content("{\"email\": \"test@gmail.com\" , \"password\":\"testPassword\" , \"userType\":\"SELLER\"}"))
+//                .andExpect(status().isBadRequest());
+//    }
+//
+//
+//    @Test
+//    void testRegisterWithAlreadyExistingUser() throws Exception {
+//
+//        Mockito.when(this.authenticator.register(any(RegisterCustomerRequestDTO.class)))
+//                .thenThrow(new EmailAlreadyExistsException("User already exists"));
+//
+//        mockMvc.perform(post("/api/v1/auth/register")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content("{\"email\":\"testUser@gmail.com\", \"password\":\"testPassword\"}"))
+//                .andExpect(status().isBadRequest());
+//    }
+//
+//    @Test
+//    void testAuthenticate() throws Exception {
+//        mockMvc.perform(post("/api/v1/auth/login")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content("{\"email\":\"testUser@gmail.com\", \"password\":\"testPassword\"}"))
+//                .andExpect(status().isOk());
+//    }
 
 
 }

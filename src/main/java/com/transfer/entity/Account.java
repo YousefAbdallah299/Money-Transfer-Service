@@ -17,8 +17,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Data
 @Entity
+@Table(name = "accounts")
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,7 +44,6 @@ public class Account {
     private AccountCurrency currency;
 
     private String accountName;
-
     private String accountDescription;
 
     @Builder.Default
@@ -59,11 +59,11 @@ public class Account {
     @ManyToOne(fetch = FetchType.EAGER)
     private Customer customer;
 
-
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Builder.Default
     private Set<Transaction> transactions = new HashSet<>();
 
+    // Convert Account entity to AccountResponseDTO
     public AccountResponseDTO toDTO() {
         return AccountResponseDTO.builder()
                 .id(this.id)
@@ -78,5 +78,4 @@ public class Account {
                 .updatedAt(this.updatedAt)
                 .build();
     }
-
 }
