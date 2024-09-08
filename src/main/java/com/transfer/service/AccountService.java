@@ -2,7 +2,7 @@ package com.transfer.service;
 
 import com.transfer.dto.request.CreateAccountRequestDTO;
 import com.transfer.dto.response.AccountResponseDTO;
-import com.transfer.dto.response.TransactionResponseDTO;
+import com.transfer.dto.response.TransactionPageResponseDTO;
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
 import com.transfer.exception.custom.InsufficientFundsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.IOException;
-import java.util.Set;
 
 public interface AccountService {
 
@@ -81,7 +80,7 @@ public interface AccountService {
      * @throws ResourceNotFoundException if the account is not found
      * @throws UnauthorizedAccessException if the user is not authorized to access this account's transactions
      */
-    Set<TransactionResponseDTO> getTransactions(Long accountId, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
+    TransactionPageResponseDTO getTransactions(Long accountId, String loggedInUserEmail, Integer pageNo, Integer pageSize, String sortBy) throws ResourceNotFoundException, UnauthorizedAccessException;
 
 
 

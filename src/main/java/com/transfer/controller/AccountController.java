@@ -2,7 +2,7 @@ package com.transfer.controller;
 
 import com.transfer.dto.request.CreateAccountRequestDTO;
 import com.transfer.dto.response.AccountResponseDTO;
-import com.transfer.dto.response.TransactionResponseDTO;
+import com.transfer.dto.response.TransactionPageResponseDTO;
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.exception.custom.UnauthorizedAccessException;
@@ -18,7 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/account")
@@ -68,12 +67,16 @@ public class AccountController {
         return new ResponseEntity<>(accountService.getBalance(accountID, loggedInUserEmail), HttpStatus.OK);
     }
 
-    @GetMapping("{accountid}/transactions")
+    @GetMapping("{accountId}/transactions")
     @Operation(summary = "Get all transactions of an account", description = "Fetches all the transactions of the specified account for the logged-in customer.")
-    public ResponseEntity<Set<TransactionResponseDTO>> getTransactions(@PathVariable(value = "accountid") Long accountID, @RequestHeader("Authorization") String token) throws ResourceNotFoundException, UnauthorizedAccessException {
+    public ResponseEntity<TransactionPageResponseDTO> getTransactions(@PathVariable(value = "accountId") Long accountId, @RequestHeader("Authorization") String token,
+                                                                      @RequestParam(defaultValue = "0") Integer pageNo,
+                                                                      @RequestParam(defaultValue = "5") Integer pageSize,
+                                                                      @RequestParam(defaultValue = "id") String sortBy
+    ) throws ResourceNotFoundException, UnauthorizedAccessException {
         token = token.substring(7);
         String loggedInUserEmail = jwtUtils.getEmailFromJwtToken(token);
-        return new ResponseEntity<>(accountService.getTransactions(accountID, loggedInUserEmail), HttpStatus.OK);
+        return new ResponseEntity<>(accountService.getTransactions(accountId, loggedInUserEmail,pageNo,pageSize,sortBy), HttpStatus.OK);
     }
 
 
@@ -85,7 +88,7 @@ public class AccountController {
             @PathVariable(value = "senderID") Long senderID,
             @PathVariable(value = "receiverAccountId") Long receiverID,
             @PathVariable(value = "amount") Double amount
-    ) throws ResourceNotFoundException, IOException {
+            ) throws ResourceNotFoundException, IOException {
         token = token.substring(7);
         String loggedInUserEmail = jwtUtils.getEmailFromJwtToken(token);
         accountService.transfer(senderID, receiverID, amount, loggedInUserEmail);

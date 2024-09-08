@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.transfer.dto.request.CreateAccountRequestDTO;
 import com.transfer.dto.response.AccountResponseDTO;
-import com.transfer.dto.response.TransactionResponseDTO;
+import com.transfer.dto.response.TransactionPageResponseDTO;
 import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
 import com.transfer.entity.Transaction;
@@ -23,13 +23,16 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -122,15 +125,35 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Set<TransactionResponseDTO> getTransactions(Long accountID, String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
+    public TransactionPageResponseDTO getTransactions(Long accountID, String loggedInUserEmail,Integer pageNo, Integer pageSize, String sortBy) throws ResourceNotFoundException,UnauthorizedAccessException {
         Account account = checkAccountExistance(accountID);
         if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
-        return account.getTransactions().stream()
-                .map(Transaction::toDTO)
-                .collect(Collectors.toSet());
+
+        Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Transaction> transactionPage =  transactionRepository.getUserTransactionsHistoryByAccountId(accountID, pageable);
+
+
+
+        boolean isLast = pageNo >= transactionPage.getTotalPages() - 1;
+
+        return TransactionPageResponseDTO.builder()
+                .totalElement(transactionPage.getNumberOfElements())
+                .totalPages(transactionPage.getTotalPages())
+                .pageNumber(pageNo)
+                .pageSize(pageSize)
+                .isLast(isLast)
+                .transactionsForAccount(
+                        transactionPage.getContent().
+                                stream()
+                                .map(Transaction::toDTO).toList()
+                )
+                .build();
+
     }
+
 
 
 
