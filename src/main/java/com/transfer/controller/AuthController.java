@@ -24,6 +24,12 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @GetMapping("/refresh")
+    public ResponseEntity<Void> refresh() {
+        return ResponseEntity.ok().build();
+    }
+
+
     @PostMapping("/register")
     @Operation(summary = "Register a new customer", description = "Creates a new customer account with the provided details. An email address must be unique.")
     public ResponseEntity<RegisterCustomerResponseDTO> register(@RequestBody @Valid RegisterCustomerRequestDTO customer) throws EmailAlreadyExistsException {

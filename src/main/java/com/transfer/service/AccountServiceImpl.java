@@ -23,6 +23,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -125,6 +127,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+//    @Cacheable(value = "transactions",key = "#pageNo")
     public TransactionPageResponseDTO getTransactions(Long accountID, String loggedInUserEmail,Integer pageNo, Integer pageSize, String sortBy) throws ResourceNotFoundException,UnauthorizedAccessException {
         Account account = checkAccountExistance(accountID);
         if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
@@ -159,6 +162,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
+//    @CachePut(cacheNames = {"studentCache"}, key="#student.studentId")
     public void transfer(Long senderID, Long receiverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, IOException {
         Account sender = accountRepository.findById(senderID)
                 .orElseThrow(() -> new ResourceNotFoundException("Sender account not found"));
