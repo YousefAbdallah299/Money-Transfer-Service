@@ -1,8 +1,7 @@
 HELP.md
 target/
+!target/Transfer-Service-0.0.1-SNAPSHOT.jar
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
 ### STS ###
 .apt_generated
