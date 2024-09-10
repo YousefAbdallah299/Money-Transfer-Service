@@ -14,12 +14,15 @@ import java.time.LocalDateTime;
 public class TransactionResponseDTO {
     private Long id;
 
-    private Long senderID;
+    private String senderName;
 
+    private String senderAccountNumber;
 
     private AccountCurrency currency;
 
-    private Long recieverID;
+    private String recieverAccountNumber;
+
+    private String recieverAccountName;
 
     private Double amountTransferred;
 

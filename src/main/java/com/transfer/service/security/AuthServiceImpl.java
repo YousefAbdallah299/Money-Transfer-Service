@@ -1,12 +1,16 @@
 package com.transfer.service.security;
 
+import com.transfer.dto.enums.AccountCurrency;
+import com.transfer.dto.enums.AccountType;
+import com.transfer.dto.request.ChangePasswordDTO;
 import com.transfer.dto.request.LoginRequestDTO;
 import com.transfer.dto.response.LoginResponseDTO;
 import com.transfer.dto.request.RegisterCustomerRequestDTO;
-import com.transfer.dto.response.RegisterCustomerResponseDTO;
+import com.transfer.dto.response.CustomerResponseDTO;
 import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
+import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
     private final Set<String> invalidatedTokens = new HashSet<>();
 
     @Transactional
-    public RegisterCustomerResponseDTO register(RegisterCustomerRequestDTO customerRequest) throws EmailAlreadyExistsException{
+    public CustomerResponseDTO register(RegisterCustomerRequestDTO customerRequest) throws EmailAlreadyExistsException{
 
         if(Boolean.TRUE.equals(customerRepository.existsByEmail(customerRequest.getEmail())))
             throw new EmailAlreadyExistsException("Email Already Exists!");
@@ -46,14 +50,18 @@ public class AuthServiceImpl implements AuthService {
                 .email(customerRequest.getEmail())
                 .password(this.passwordEncoder.encode(customerRequest.getPassword()))
                 .name(customerRequest.getName())
+                .dateOfBirth(customerRequest.getDateOfBirth())
+                .country(customerRequest.getCountry())
                 .build();
+
+        if(customerRequest.getPhoneNumber() != null) customer.setPhoneNumber(customerRequest.getPhoneNumber());
 
         Account account = Account.builder()
                 .balance(0.0)
-                .accountType(customerRequest.getAccountType())
+                .accountType(AccountType.SAVINGS)
                 .accountDescription("Savings Account")
                 .accountName(customerRequest.getName())
-                .currency(customerRequest.getAccountCurrency())
+                .currency(AccountCurrency.EGP)
                 .accountNumber(new SecureRandom().nextInt(1000000000) + "")
                 .customer(customer)
                 .build();
@@ -89,6 +97,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String token){
         invalidatedTokens.add(token);
+    }
+
+    @Override
+    public void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException {
+        Customer customer =  customerRepository.findUserByEmail(loggedInUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        customer.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+
+
+        customerRepository.save(customer);
+
+
     }
 
     public boolean isTokenInvalid(String token){

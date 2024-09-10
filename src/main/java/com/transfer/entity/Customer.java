@@ -1,14 +1,16 @@
 package com.transfer.entity;
 
-import com.transfer.dto.response.RegisterCustomerResponseDTO;
+import com.transfer.dto.response.CustomerResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -31,10 +33,20 @@ public class Customer {
     private String email;
 
     @Column(nullable = false)
-    private String password;  // Make sure to hash passwords before saving
+    private String password;
+
+    @Column(nullable = false)
+    private String country;
+
+    @Column(nullable = true)
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    private LocalDate dateOfBirth;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
@@ -47,14 +59,18 @@ public class Customer {
     @Builder.Default
     private Set<FavRecipient> favoriteRecipients = new HashSet<>();
 
-    // Convert Customer entity to RegisterCustomerResponseDTO
-    public RegisterCustomerResponseDTO toResponse() {
-        return RegisterCustomerResponseDTO.builder()
+    public CustomerResponseDTO toResponse() {
+        return CustomerResponseDTO.builder()
                 .id(this.id)
                 .name(this.name)
                 .email(this.email)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
+                .accounts(this.accounts.stream().map(Account::toDTO).collect(Collectors.toSet()))
+                .dateOfBirth(this.dateOfBirth)
+                .country(this.country)
+                .phoneNumber(this.phoneNumber)
                 .build();
+
     }
 }

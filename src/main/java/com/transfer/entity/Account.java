@@ -44,6 +44,7 @@ public class Account {
     private AccountCurrency currency;
 
     private String accountName;
+
     private String accountDescription;
 
     @Builder.Default
@@ -59,7 +60,7 @@ public class Account {
     @ManyToOne(fetch = FetchType.EAGER)
     private Customer customer;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
     private Set<Transaction> transactions = new HashSet<>();
 

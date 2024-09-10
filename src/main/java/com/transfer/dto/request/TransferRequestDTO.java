@@ -8,15 +8,15 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Getter
 @Setter
-public class UpdateAccountRequestDTO {
+@Getter
+public class TransferRequestDTO {
+    @NotBlank
+    private String senderAccountNumber;
+    @NotBlank
+    private String recipientAccountNumber;
+    @NotBlank
+    private String RecipientName;
     @NotNull
-    private Long accountId;
-
-    @NotBlank
-    private String accountName;
-
-    @NotBlank
-    private String accountDescription;
+    private Double Amount;
 }

@@ -1,8 +1,10 @@
 package com.transfer.service;
 
 import com.transfer.dto.request.CreateAccountRequestDTO;
+import com.transfer.dto.request.TransferRequestDTO;
 import com.transfer.dto.response.AccountResponseDTO;
 import com.transfer.dto.response.TransactionPageResponseDTO;
+import com.transfer.dto.response.TransactionResponseDTO;
 import com.transfer.exception.custom.AccountCurrencyAlreadyExistsException;
 import com.transfer.exception.custom.InsufficientFundsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
@@ -11,6 +13,12 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.IOException;
+
+/**
+ * Service interface for managing account-related operations.
+ * Provides methods to create, delete, and manage accounts,
+ * handle deposits and withdrawals, perform transfers, and retrieve account details and transactions.
+ */
 
 public interface AccountService {
 
@@ -30,23 +38,23 @@ public interface AccountService {
     /**
      * Delete an account by id
      *
-     * @param accountId the account id
+     * @param accountNumber the account number
      * @param loggedInUserEmail the email of the logged-in user
      * @throws ResourceNotFoundException if the account is not found
      * @throws UnauthorizedAccessException if the user is not authorized to delete this account
      */
-    void deleteAccount(Long accountId, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
+    void deleteAccount(String accountNumber, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
 
     /**
      * Deposit money into an account
      *
-     * @param accountId the account id
+     * @param accountNumber the account number
      * @param amount the amount to deposit
      * @param loggedInUserEmail the email of the logged-in user
      * @throws ResourceNotFoundException if the account is not found
      * @throws UnauthorizedAccessException if the user is not authorized to deposit into this account
      */
-    void deposit(Long accountId, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
+    void deposit(String accountNumber, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
 
     /**
      * Withdraw money from an account
@@ -63,24 +71,24 @@ public interface AccountService {
     /**
      * Get the balance of an account
      *
-     * @param accountId the account id
+     * @param accountNumber the account number
      * @param loggedInUserEmail the email of the logged-in user
      * @return the balance of the account
      * @throws ResourceNotFoundException if the account is not found
      * @throws UnauthorizedAccessException if the user is not authorized to access this account's balance
      */
-    Double getBalance(Long accountId, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
+    Double getBalance(String accountNumber, String loggedInUserEmail) throws ResourceNotFoundException, UnauthorizedAccessException;
 
     /**
      * Get all transactions of an account
      *
-     * @param accountId the account id
+     * @param accountNumber the account number
      * @param loggedInUserEmail the email of the logged-in user
      * @return a set of transactions associated with the account
      * @throws ResourceNotFoundException if the account is not found
      * @throws UnauthorizedAccessException if the user is not authorized to access this account's transactions
      */
-    TransactionPageResponseDTO getTransactions(Long accountId, String loggedInUserEmail, Integer pageNo, Integer pageSize, String sortBy) throws ResourceNotFoundException, UnauthorizedAccessException;
+    TransactionPageResponseDTO getTransactions(String accountNumber, String loggedInUserEmail, Integer pageNo, Integer pageSize, String sortBy) throws ResourceNotFoundException, UnauthorizedAccessException;
 
 
 
@@ -88,14 +96,12 @@ public interface AccountService {
     /**
      * Transfer money from one account to another
      *
-     * @param senderID the ID of the sender
-     * @param receiverID the ID of the receiver
-     * @param amount the amount to be transferred
+     * @param transferRequestDTO the transfer request required parameters
      * @param loggedInUserEmail the email of the logged-in user
      * @throws ResourceNotFoundException if the sender or receiver is not found
      * @throws InsufficientFundsException if the sender does not have enough money
      * @throws UnauthorizedAccessException if the logged-in user is not authorized to perform this transaction
      */
-    void transfer(Long senderID, Long receiverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, UnauthorizedAccessException, IOException;
+    TransactionResponseDTO transfer(@RequestBody @Valid TransferRequestDTO transferRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, UnauthorizedAccessException, IOException;
 
 }

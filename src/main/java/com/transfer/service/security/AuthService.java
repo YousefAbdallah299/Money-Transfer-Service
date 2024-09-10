@@ -1,10 +1,12 @@
 package com.transfer.service.security;
 
+import com.transfer.dto.request.ChangePasswordDTO;
 import com.transfer.dto.request.LoginRequestDTO;
 import com.transfer.dto.response.LoginResponseDTO;
 import com.transfer.dto.request.RegisterCustomerRequestDTO;
-import com.transfer.dto.response.RegisterCustomerResponseDTO;
+import com.transfer.dto.response.CustomerResponseDTO;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
+import com.transfer.exception.custom.ResourceNotFoundException;
 
 
 public interface AuthService {
@@ -17,7 +19,7 @@ public interface AuthService {
      * @throws EmailAlreadyExistsException if the customer already exists
      */
 
-    RegisterCustomerResponseDTO register(RegisterCustomerRequestDTO customer) throws EmailAlreadyExistsException;
+    CustomerResponseDTO register(RegisterCustomerRequestDTO customer) throws EmailAlreadyExistsException;
 
 
     /**
@@ -36,5 +38,14 @@ public interface AuthService {
      * @param token the token of the user
      */
     void logout(String token);
+
+
+    /**
+     * Logout a customer
+     *
+     * @param changePasswordDTO the new password of the user
+     */
+    void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException;
+
 
 }

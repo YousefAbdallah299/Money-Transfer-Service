@@ -31,7 +31,7 @@ public class FavRecipient {
     // Convert FavRecipient entity to FavoritesResponseDTO
     public FavoritesResponseDTO toDTO() {
         return FavoritesResponseDTO.builder()
-                .recipientAccountId(this.id.getRecipientAccountID())
+                .recipientAccountNumber(this.recipientAccount.getAccountNumber())
                 .recipientName(this.recipientName)
                 .build();
     }

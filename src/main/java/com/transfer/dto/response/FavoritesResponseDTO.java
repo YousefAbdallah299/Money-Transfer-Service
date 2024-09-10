@@ -12,5 +12,5 @@ public class FavoritesResponseDTO {
     private String recipientName;
 
     @Column(nullable = false)
-    private Long recipientAccountId;
+    private String recipientAccountNumber;
 }

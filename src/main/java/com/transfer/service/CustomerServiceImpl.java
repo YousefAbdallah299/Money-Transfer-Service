@@ -1,7 +1,9 @@
 package com.transfer.service;
 
+import com.transfer.dto.request.EditCustomerDTO;
 import com.transfer.dto.request.FavoritesRequestDTO;
 import com.transfer.dto.response.AccountResponseDTO;
+import com.transfer.dto.response.CustomerResponseDTO;
 import com.transfer.dto.response.FavoritesResponseDTO;
 import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
@@ -14,6 +16,8 @@ import com.transfer.repository.CustomerRepository;
 import com.transfer.repository.FavoriteRecipientRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,6 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
     public List<AccountResponseDTO> getAccounts(String loggedInUserEmail) throws ResourceNotFoundException {
         Customer customer =  customerRepository.findUserByEmail(loggedInUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         if (!customer.getEmail().equals(loggedInUserEmail)) {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
 
@@ -46,6 +51,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Cacheable(value = "favorites", key = "#loggedInUserEmail")
+
     public Set<FavoritesResponseDTO> getFavorites(String loggedInUserEmail) throws UnauthorizedAccessException {
         Customer customer =  customerRepository.findUserByEmail(loggedInUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -53,7 +60,6 @@ public class CustomerServiceImpl implements CustomerService {
         if (!customer.getEmail().equals(loggedInUserEmail)) {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
-
         return customer.getFavoriteRecipients().stream()
                 .map(FavRecipient::toDTO)
                 .collect(Collectors.toSet());
@@ -61,7 +67,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public void addFavorite(FavoritesRequestDTO FavoritesRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
+    @CacheEvict(value = "favorites", key = "#loggedInUserEmail")
+    public void addFavorite(FavoritesRequestDTO favoritesRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
         Customer customer =  customerRepository.findUserByEmail(loggedInUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -69,8 +76,12 @@ public class CustomerServiceImpl implements CustomerService {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
 
-        Account account = accountRepository.findById(FavoritesRequestDTO.getRecipientAccountId())
+        Account account = accountRepository.findByAccountNumber(favoritesRequestDTO.getRecipientAccountNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Receiver account not found"));
+
+        if(Boolean.FALSE.equals(account.getAccountName().equals(favoritesRequestDTO.getRecipientAccountName()))){
+            throw new ResourceNotFoundException("Recipient account name is incorrect");
+        }
 
         FavRecipientId favRecipientId = new FavRecipientId(customer.getId(), account.getId());
 
@@ -89,7 +100,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public void deleteFavorite(FavoritesRequestDTO FavoritesRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
+    @CacheEvict(value = "favorites", key = "#loggedInUserEmail")
+    public void deleteFavorite(FavoritesRequestDTO favoritesRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
         Customer customer = customerRepository.findUserByEmail(loggedInUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -97,8 +109,15 @@ public class CustomerServiceImpl implements CustomerService {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
 
-        Account account = accountRepository.findById(FavoritesRequestDTO.getRecipientAccountId())
+
+
+        Account account = accountRepository.findByAccountNumber(favoritesRequestDTO.getRecipientAccountNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Receiver account not found"));
+
+
+        if(Boolean.FALSE.equals(account.getAccountName().equals(favoritesRequestDTO.getRecipientAccountName()))){
+            throw new ResourceNotFoundException("Recipient account name is incorrect");
+        }
 
         FavRecipientId favRecipientId = new FavRecipientId(customer.getId(), account.getId());
 
@@ -109,6 +128,39 @@ public class CustomerServiceImpl implements CustomerService {
         favoriteRecipientRepository.deleteById(favRecipientId);
     }
 
+    @Override
+    public CustomerResponseDTO getCustomerInfo(String loggedInUserEmail) {
+        Customer customer = customerRepository.findUserByEmail(loggedInUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return customer.toResponse();
+    }
+
+    @Override
+    public CustomerResponseDTO editCustomerInfo(String loggedInUserEmail, EditCustomerDTO editCustomerDTO) {
+        Customer customer = customerRepository.findUserByEmail(loggedInUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (editCustomerDTO.getPhoneNumber() != null) {
+            customer.setPhoneNumber(editCustomerDTO.getPhoneNumber());
+        }
+        if (editCustomerDTO.getEmail() != null) {
+            customer.setEmail(editCustomerDTO.getEmail());
+        }
+        if (editCustomerDTO.getFullName() != null) {
+            customer.setName(editCustomerDTO.getFullName());
+        }
+        if (editCustomerDTO.getDateOfBirth() != null) {
+            customer.setDateOfBirth(editCustomerDTO.getDateOfBirth());
+        }
+        if (editCustomerDTO.getCountry() != null) {
+            customer.setCountry(editCustomerDTO.getCountry());
+        }
+
+        customerRepository.save(customer);
+
+        return customer.toResponse();
+    }
 
 
 }

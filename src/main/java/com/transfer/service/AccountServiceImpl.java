@@ -4,8 +4,10 @@ package com.transfer.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.transfer.dto.request.CreateAccountRequestDTO;
+import com.transfer.dto.request.TransferRequestDTO;
 import com.transfer.dto.response.AccountResponseDTO;
 import com.transfer.dto.response.TransactionPageResponseDTO;
+import com.transfer.dto.response.TransactionResponseDTO;
 import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
 import com.transfer.entity.Transaction;
@@ -23,14 +25,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -56,7 +55,6 @@ public class AccountServiceImpl implements AccountService {
         );
 
 
-
         if(Boolean.TRUE.equals(customer.getAccounts().stream().anyMatch(account -> account.getCurrency().equals(createAccountRequestDTO.getCurrency()))))
             throw new AccountCurrencyAlreadyExistsException("This Customer Already Has An Account With This Currency!");
 
@@ -77,8 +75,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void deleteAccount(Long accountId,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
-        Account account = checkAccountExistance(accountId);
+    public void deleteAccount(String accountNumber,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException {
+        Account account =  accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+
         if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
@@ -87,12 +88,14 @@ public class AccountServiceImpl implements AccountService {
         customer.getAccounts().remove(account);
 
         customerRepository.save(customer);
-        accountRepository.deleteById(accountId);
+        accountRepository.deleteById(account.getId());
     }
 
     @Override
-    public void deposit(Long accountId, Double amount,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException{
-        Account account = checkAccountExistance(accountId);
+    public void deposit(String accountNumber, Double amount,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException{
+        Account account =  accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
         if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
@@ -118,8 +121,10 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Double getBalance(Long accoundID,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException{
-        Account account = checkAccountExistance(accoundID);
+    public Double getBalance(String accountNumber,String loggedInUserEmail) throws ResourceNotFoundException,UnauthorizedAccessException{
+        Account account =  accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
         if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
@@ -127,17 +132,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-//    @Cacheable(value = "transactions",key = "#pageNo")
-    public TransactionPageResponseDTO getTransactions(Long accountID, String loggedInUserEmail,Integer pageNo, Integer pageSize, String sortBy) throws ResourceNotFoundException,UnauthorizedAccessException {
-        Account account = checkAccountExistance(accountID);
+    public TransactionPageResponseDTO getTransactions(String accountNumber, String loggedInUserEmail,Integer pageNo, Integer pageSize, String sortBy) throws ResourceNotFoundException,UnauthorizedAccessException {
+        Account account =  accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
         if (!account.getCustomer().getEmail().equals(loggedInUserEmail)) {
             throw new UnauthorizedAccessException("You do not have permission to access this account");
         }
 
         Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
-        Page<Transaction> transactionPage =  transactionRepository.getUserTransactionsHistoryByAccountId(accountID, pageable);
-
+        Page<Transaction> transactionPage =  transactionRepository.getUserTransactionsHistoryByAccountId(account.getId(), pageable);
 
 
         boolean isLast = pageNo >= transactionPage.getTotalPages() - 1;
@@ -162,29 +167,35 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-//    @CachePut(cacheNames = {"studentCache"}, key="#student.studentId")
-    public void transfer(Long senderID, Long receiverID, Double amount, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, IOException {
-        Account sender = accountRepository.findById(senderID)
+    public TransactionResponseDTO transfer(TransferRequestDTO transferRequestDTO, String loggedInUserEmail) throws ResourceNotFoundException, InsufficientFundsException, IOException {
+        Account sender = accountRepository.findByAccountNumber(transferRequestDTO.getSenderAccountNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Sender account not found"));
 
-        Account reciever = accountRepository.findById(receiverID)
+        Account reciever = accountRepository.findByAccountNumber(transferRequestDTO.getRecipientAccountNumber())
                 .orElseThrow(() -> new ResourceNotFoundException("Receiver account not found"));
 
-        this.withdraw(senderID,amount,loggedInUserEmail);
+        if(Boolean.FALSE.equals(reciever.getAccountName().equals(transferRequestDTO.getRecipientName()))){
+            throw new ResourceNotFoundException("Recipient account name is incorrect");
+        }
 
-        this.deposit(receiverID,convertCurrency(sender.getCurrency().toString(),reciever.getCurrency().toString(),amount),reciever.getCustomer().getEmail());
+
+        this.withdraw(sender.getId(),transferRequestDTO.getAmount(),loggedInUserEmail);
+
+        this.deposit(reciever.getAccountNumber(), convertCurrency(sender.getCurrency().toString(),reciever.getCurrency().toString(), transferRequestDTO.getAmount()),reciever.getCustomer().getEmail());
 
         Transaction transaction = Transaction.builder()
                 .account(sender)
                 .createdAt(LocalDateTime.now())
-                .amountTransferred(amount)
+                .amountTransferred(transferRequestDTO.getAmount())
                 .currency(sender.getCurrency())
-                .recieverID(receiverID)
+                .recieverAccountName(reciever.getAccountName())
+                .recieverAccountNumber(reciever.getAccountNumber())
                 .build();
 
         sender.getTransactions().add(transaction);
 
         transactionRepository.save(transaction);
+        return transaction.toDTO();
 
     }
 

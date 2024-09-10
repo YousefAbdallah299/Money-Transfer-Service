@@ -1,13 +1,14 @@
 package com.transfer.dto.request;
 
-import com.transfer.dto.enums.AccountCurrency;
-import com.transfer.dto.enums.AccountType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,11 +26,15 @@ public class RegisterCustomerRequestDTO {
     @Size(min = 8)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private AccountCurrency accountCurrency;
+    @NotBlank
+    private String country;
 
-    @Enumerated(EnumType.STRING)
-    private AccountType accountType;
+    @Past
+    private LocalDate dateOfBirth;
+
+    @Nullable
+    private String phoneNumber;
+
 
 
 }

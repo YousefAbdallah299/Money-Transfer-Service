@@ -28,7 +28,9 @@ public class Transaction {
     private AccountCurrency currency;
 
     @Column(nullable = false)
-    private Long recieverID;
+    private String recieverAccountNumber;
+
+    private String recieverAccountName;
 
     @Column(nullable = false)
     private Double amountTransferred;
@@ -41,11 +43,13 @@ public class Transaction {
     public TransactionResponseDTO toDTO() {
         return TransactionResponseDTO.builder()
                 .amountTransferred(this.amountTransferred)
-                .recieverID(this.recieverID)
+                .recieverAccountNumber(this.recieverAccountNumber)
                 .id(this.id)
                 .createdAt(this.createdAt)
-                .senderID(this.account.getId())
+                .senderName(this.account.getAccountName())
+                .senderAccountNumber(this.account.getAccountNumber())
                 .currency(this.currency)
+                .recieverAccountName(this.recieverAccountName)
                 .build();
     }
 
