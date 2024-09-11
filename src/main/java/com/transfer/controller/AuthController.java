@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Validated
 @Tag(name = "Authentication", description = "Endpoints for customer authentication and authorization, including registration, login, and logout.")
 public class AuthController {

@@ -23,6 +23,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/v1/customer")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Validated
 @Tag(name = "Customers", description = "Endpoints for managing customers and their transactions")
 public class CustomerController {

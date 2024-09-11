@@ -25,6 +25,7 @@ import java.io.IOException;
 @RequestMapping("/api/v1/account")
 @RequiredArgsConstructor
 @Validated
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Tag(name = "Accounts", description = "Endpoints for managing customer accounts, including creation, updating, and retrieving account details.")
 public class AccountController {
     private final AccountService accountService;
