@@ -106,15 +106,15 @@ public class AuthServiceImpl implements AuthService {
         Customer customer =  customerRepository.findUserByEmail(loggedInUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String newPass = passwordEncoder.encode(changePasswordDTO.getNewPassword());
-
-        if(Boolean.TRUE.equals(newPass.equals(passwordEncoder.encode(changePasswordDTO.getOldPassword()))))
+        if (passwordEncoder.matches(changePasswordDTO.getNewPassword(), customer.getPassword())) {
             throw new SameAsOldPasswordException("New password is the same as the old one!");
+        }
 
-        if(Boolean.FALSE.equals(customer.getPassword().equals(passwordEncoder.encode(changePasswordDTO.getOldPassword())))){
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), customer.getPassword())) {
             throw new InvalidOldPasswordException("Old password is incorrect!");
         }
 
+        String newPass = passwordEncoder.encode(changePasswordDTO.getNewPassword());
         customer.setPassword(newPass);
 
 
