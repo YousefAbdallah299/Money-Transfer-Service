@@ -10,6 +10,7 @@ import com.transfer.dto.response.CustomerResponseDTO;
 import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
+import com.transfer.exception.custom.InvalidOldPasswordException;
 import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.exception.custom.SameAsOldPasswordException;
 import com.transfer.repository.CustomerRepository;
@@ -101,18 +102,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException, SameAsOldPasswordException {
+    public void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException, SameAsOldPasswordException, InvalidOldPasswordException {
         Customer customer =  customerRepository.findUserByEmail(loggedInUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String newPass = passwordEncoder.encode(changePasswordDTO.getNewPassword());
 
-        if(Boolean.TRUE.equals(newPass.equals(changePasswordDTO.getOldPassword())))
+        if(Boolean.TRUE.equals(newPass.equals(passwordEncoder.encode(changePasswordDTO.getOldPassword()))))
             throw new SameAsOldPasswordException("New password is the same as the old one!");
-        else{
-            customer.setPassword(newPass);
 
+        if(Boolean.FALSE.equals(customer.getPassword().equals(passwordEncoder.encode(changePasswordDTO.getOldPassword())))){
+            throw new InvalidOldPasswordException("Old password is incorrect!");
         }
+
+        customer.setPassword(newPass);
 
 
         customerRepository.save(customer);

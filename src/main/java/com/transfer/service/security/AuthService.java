@@ -6,6 +6,7 @@ import com.transfer.dto.response.LoginResponseDTO;
 import com.transfer.dto.request.RegisterCustomerRequestDTO;
 import com.transfer.dto.response.CustomerResponseDTO;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
+import com.transfer.exception.custom.InvalidOldPasswordException;
 import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.exception.custom.SameAsOldPasswordException;
 
@@ -46,7 +47,7 @@ public interface AuthService {
      *
      * @param changePasswordDTO the new password of the user
      */
-    void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException, SameAsOldPasswordException;
+    void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException, SameAsOldPasswordException, InvalidOldPasswordException;
 
 
 }

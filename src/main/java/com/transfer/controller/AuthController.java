@@ -6,6 +6,7 @@ import com.transfer.dto.response.LoginResponseDTO;
 import com.transfer.dto.request.RegisterCustomerRequestDTO;
 import com.transfer.dto.response.CustomerResponseDTO;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
+import com.transfer.exception.custom.InvalidOldPasswordException;
 import com.transfer.exception.custom.ResourceNotFoundException;
 import com.transfer.exception.custom.SameAsOldPasswordException;
 import com.transfer.service.security.AuthService;
@@ -60,7 +61,7 @@ public class AuthController {
     @PutMapping("change-password")
     @Operation(summary = "Change user password", description = "Changes the current user password to a new one.")
 
-    public ResponseEntity<Void> changePassword(@RequestHeader("Authorization") String token, @RequestBody @Valid ChangePasswordDTO changePasswordDTO) throws SameAsOldPasswordException, ResourceNotFoundException {
+    public ResponseEntity<Void> changePassword(@RequestHeader("Authorization") String token, @RequestBody @Valid ChangePasswordDTO changePasswordDTO) throws SameAsOldPasswordException, ResourceNotFoundException, InvalidOldPasswordException {
         token = token.substring(7);
         String loggedInUserEmail = jwtUtils.getEmailFromJwtToken(token);
 
