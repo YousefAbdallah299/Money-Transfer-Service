@@ -11,6 +11,7 @@ import com.transfer.entity.Account;
 import com.transfer.entity.Customer;
 import com.transfer.exception.custom.EmailAlreadyExistsException;
 import com.transfer.exception.custom.ResourceNotFoundException;
+import com.transfer.exception.custom.SameAsOldPasswordException;
 import com.transfer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -100,11 +101,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException {
+    public void changePassword(ChangePasswordDTO changePasswordDTO, String loggedInUserEmail) throws ResourceNotFoundException, SameAsOldPasswordException {
         Customer customer =  customerRepository.findUserByEmail(loggedInUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        customer.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+        String newPass = passwordEncoder.encode(changePasswordDTO.getNewPassword());
+
+        if(Boolean.TRUE.equals(newPass.equals(changePasswordDTO.getOldPassword())))
+            throw new SameAsOldPasswordException("New password is the same as the old one!");
+        else{
+            customer.setPassword(newPass);
+
+        }
 
 
         customerRepository.save(customer);
