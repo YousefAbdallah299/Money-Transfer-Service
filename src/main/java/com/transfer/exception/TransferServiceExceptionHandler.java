@@ -32,8 +32,8 @@ public class TransferServiceExceptionHandler {
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<Object> emailAlreadyExistsExceptionHandling(EmailAlreadyExistsException exception, WebRequest request){
-        return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(), exception.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Object> emailAlreadyExistsExceptionHandling(EmailAlreadyExistsException exception, WebRequest request) {
+        return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(), exception.getMessage(), request.getDescription(false), HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InsufficientFundsException.class)
