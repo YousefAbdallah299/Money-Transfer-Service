@@ -13,7 +13,7 @@ Welcome to the **Money Transfer System**, a comprehensive banking platform desig
 - **Error Management**: Implement thorough validation and error handling throughout the system.
 
 ## Technology Stack
-- **Backend Languages**: Java and Kotlin are utilized for core backend development.
+- **Backend Languages**: Java is utilized for core backend development.
 - **Framework**: Spring Boot 3 powers the backend services.
 - **Security**: Spring Security 6 provides robust user authentication and authorization.
 - **Authentication**: JWT (JSON Web Tokens) is used for secure, token-based authentication.
